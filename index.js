@@ -33,7 +33,7 @@ function ttyWrite(path, data, callback) {
 function ttyRequest(path, request, callback) {
     var read = new Buffer(0);
     var port = new SerialPort(path, {
-        baudRate: 9600
+        baudRate: 115200
     }).on('open', function() {
         port.flush(function(err) {
             port.write(request);
@@ -60,7 +60,7 @@ DenonRS232.prototype = {
 
     setState: function(value, callback) {
         var self = this;
-        ttyWrite(self.path, value?"PWON\r":"PWSTANDBY\r", function(err) {
+        ttyWrite(self.path, value?"Main.Power=On\r":"Main.Power=Off\r", function(err) {
             self.log("'%s' is now %s", self.name, value ? "on" : "off");
             callback(err);
         });
@@ -68,8 +68,8 @@ DenonRS232.prototype = {
 
     getState: function (callback) {
         var self = this;
-        ttyRequest(self.path, "PW?\r", function(err, data) {
-            var active = data.includes("PWON");
+        ttyRequest(self.path, "Main.Power?\r", function(err, data) {
+            var active = data.includes("Main.Power=On");
             self.log("'%s' is currently %s", self.name, active ? "on" : "off");
             callback(err, active);
         });
